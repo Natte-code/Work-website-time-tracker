@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Records</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <h1>Work Records</h1>
+    <nav>
+        <a href="./home.html">Home</a>
+        <a href="./track.html">Track Time</a>
+        <a href="./records.html">View Records</a>
+        <a href="./stats.html">Statistics</a>
+    </nav>
+    <div class="button-container">
+        <button id="clearDataButton">Clear Test Data</button>
+        <button id="exportBackupButton">Export Backup</button>
+        <button id="importBackupButton">Import Backup</button>
+        <input type="file" id="importFileInput" style="display: none;">
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Duration</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody id="recordsTableBody">
+            <!-- Records will be dynamically inserted here -->
+        </tbody>
+    </table>
+
+    <script>
+        const records = JSON.parse(localStorage.getItem('workRecords')) || [];
+        const tableBody = document.getElementById('recordsTableBody');
+        const clearDataButton = document.getElementById('clearDataButton');
+        const exportBackupButton = document.getElementById('exportBackupButton');
+        const importBackupButton = document.getElementById('importBackupButton');
+        const importFileInput = document.getElementById('importFileInput');
+
+        // Function to format duration into hours and minutes
+        function formatDuration(duration) {
+            const totalMinutes = Math.round(duration * 60);
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+        }
+
+        // Populate the table with records
+        if (records.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5">No records found</td></tr>';
+        } else {
+            records.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.date}</td>
+                    <td>${record.startTime}</td>
+                    <td>${record.endTime}</td>
+                    <td>${formatDuration(record.duration)}</td>
+                    <td>${record.notes}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Clear all data
+        clearDataButton.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all data?')) {
+                localStorage.removeItem('workRecords');
+                location.reload();
+            }
+        });
+
+        // Export data as JSON file
+        exportBackupButton.addEventListener('click', () => {
+            const dataStr = JSON.stringify(records, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'workRecordsBackup.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // Import data from JSON file
+        importBackupButton.addEventListener('click', () => {
+            importFileInput.click();
+        });
+
+        importFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        if (Array.isArray(importedData)) {
+                            localStorage.setItem('workRecords', JSON.stringify(importedData));
+                            alert('Backup imported successfully!');
+                            location.reload();
+                        } else {
+                            alert('Invalid backup file format.');
+                        }
+                    } catch (error) {
+                        alert('Error reading backup file.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Track Time</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Track Time</h1>
+    <nav>
+        <a href="home.html">Home</a>
+        <a href="track.html">Track Time</a>
+        <a href="records.html">View Records</a>
+        <a href="stats.html">Statistics</a>
+    </nav>
+    <form id="trackForm">
+        <label for="notes">Notes:</label>
+        <input type="text" id="notes" name="notes" placeholder="Enter notes (optional)">
+        <button type="button" id="startButton">Start Work</button>
+        <button type="button" id="endButton" disabled>End Work</button>
+    </form>
+    <p id="status">Status: Not working</p>
+
+    <script>
+        let startTime = null;
+
+        document.getElementById('startButton').addEventListener('click', () => {
+            startTime = new Date();
+            document.getElementById('status').textContent = `Status: Working since ${startTime.toLocaleTimeString()}`;
+            document.getElementById('startButton').disabled = true;
+            document.getElementById('endButton').disabled = false;
+        });
+
+        document.getElementById('endButton').addEventListener('click', () => {
+            if (!startTime) return;
+
+            const endTime = new Date();
+            const duration = ((endTime - startTime) / 3600000).toFixed(2); // Duration in hours
+            const notes = document.getElementById('notes').value;
+
+            const record = {
+                date: startTime.toLocaleDateString(),
+                startTime: startTime.toLocaleTimeString(),
+                endTime: endTime.toLocaleTimeString(),
+                duration,
+                notes
+            };
+
+            // Save to localStorage
+            const records = JSON.parse(localStorage.getItem('workRecords')) || [];
+            records.push(record);
+            localStorage.setItem('workRecords', JSON.stringify(records));
+
+            // Reset UI
+            document.getElementById('status').textContent = 'Status: Not working';
+            document.getElementById('startButton').disabled = false;
+            document.getElementById('endButton').disabled = true;
+            document.getElementById('notes').value = '';
+
+            alert(`Work session recorded: ${duration} hours`);
+        });
+    </script>
+</body>
+</html>

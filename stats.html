@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Statistics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Statistics</h1>
+    <nav>
+        <a href="home.html">Home</a>
+        <a href="track.html">Track Time</a>
+        <a href="records.html">View Records</a>
+        <a href="stats.html">Statistics</a>
+    </nav>
+    <div id="statsContainer">
+        <p><strong>Total Hours Worked:</strong> <span id="totalHours">0</span> hours</p>
+        <p><strong>Average Hours per Session:</strong> <span id="averageHours">0</span> hours</p>
+        <p><strong>Total Sessions:</strong> <span id="totalSessions">0</span></p>
+    </div>
+
+    <script>
+        const records = JSON.parse(localStorage.getItem('workRecords')) || [];
+        const totalSessions = records.length;
+        const totalHours = records.reduce((sum, record) => sum + parseFloat(record.duration), 0);
+        const averageHours = totalSessions > 0 ? (totalHours / totalSessions).toFixed(2) : 0;
+
+        document.getElementById('totalHours').textContent = totalHours.toFixed(2);
+        document.getElementById('averageHours').textContent = averageHours;
+        document.getElementById('totalSessions').textContent = totalSessions;
+    </script>
+</body>
+</html>
