@@ -153,28 +153,39 @@
 
         // Save data to GitHub
         saveToFileButton.addEventListener('click', async () => {
-            const token = await getGitHubToken();
-            if (!token) {
-                alert('GitHub token not configured');
-                return;
-            }
             try {
+                const token = await getGitHubToken();
+                if (!token) {
+                    throw new Error('GitHub token not configured');
+                }
+
                 const records = JSON.parse(localStorage.getItem('workRecords')) || [];
-                const fileContent = btoa(JSON.stringify(records, null, 2)); // Base64 encode the JSON data
+                const fileContent = btoa(JSON.stringify(records, null, 2));
 
-                // Get the current file SHA
-                const response = await fetch(`${GITHUB_API_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                    headers: { Authorization: `token ${token}` }
-                });
+                // Try to get existing file
+                let sha = null;
+                try {
+                    const getResponse = await fetch(`${GITHUB_API_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                        headers: { 
+                            Authorization: `Bearer ${token}`,
+                            Accept: 'application/vnd.github.v3+json'
+                        }
+                    });
 
-                const fileData = await response.json();
-                const sha = fileData.sha;
+                    if (getResponse.ok) {
+                        const fileData = await getResponse.json();
+                        sha = fileData.sha;
+                    }
+                } catch (error) {
+                    console.log('File does not exist yet, will create new');
+                }
 
-                // Update the file on GitHub
+                // Create or update file
                 const updateResponse = await fetch(`${GITHUB_API_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                     method: 'PUT',
                     headers: {
-                        Authorization: `token ${token}`,
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/vnd.github.v3+json',
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
@@ -184,41 +195,47 @@
                     })
                 });
 
-                if (updateResponse.ok) {
-                    alert('Data saved successfully on GitHub!');
-                } else {
-                    alert('Failed to save data on GitHub.');
+                if (!updateResponse.ok) {
+                    const errorData = await updateResponse.json();
+                    throw new Error(`GitHub API error: ${errorData.message}`);
                 }
+
+                alert('Data saved successfully on GitHub!');
             } catch (error) {
-                alert('Error saving data on GitHub.');
+                console.error('GitHub save error:', error);
+                alert(`Error: ${error.message}`);
             }
         });
 
         // Load data from GitHub
         loadFromFileButton.addEventListener('click', async () => {
-            const token = await getGitHubToken();
-            if (!token) {
-                alert('GitHub token not configured');
-                return;
-            }
             try {
+                const token = await getGitHubToken();
+                if (!token) {
+                    throw new Error('GitHub token not configured');
+                }
+
                 const response = await fetch(`${GITHUB_API_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                    headers: { Authorization: `token ${token}` }
+                    headers: { 
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/vnd.github.v3+json'
+                    }
                 });
 
-                if (response.ok) {
-                    const fileData = await response.json();
-                    const fileContent = atob(fileData.content); // Decode Base64 content
-                    const records = JSON.parse(fileContent);
-
-                    localStorage.setItem('workRecords', JSON.stringify(records));
-                    alert('Data loaded successfully from GitHub!');
-                    location.reload();
-                } else {
-                    alert('Failed to load data from GitHub.');
+                if (!response.ok) {
+                    throw new Error('File not found or access denied');
                 }
+
+                const fileData = await response.json();
+                const fileContent = atob(fileData.content);
+                const records = JSON.parse(fileContent);
+
+                localStorage.setItem('workRecords', JSON.stringify(records));
+                alert('Data loaded successfully from GitHub!');
+                location.reload();
             } catch (error) {
-                alert('Error loading data from GitHub.');
+                console.error('GitHub load error:', error);
+                alert(`Error: ${error.message}`);
             }
         });
     </script>
