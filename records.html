@@ -120,20 +120,38 @@
         const REPO_OWNER = 'natte-code';
         const REPO_NAME = 'Work-website-time-tracker';
         const FILE_PATH = 'data/workRecords.json';
-        const GITHUB_TOKEN = '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'; // Replace with your GitHub token
+        // Remove hardcoded token
+        const CONFIG_PATH = 'config.json';
 
         const saveToFileButton = document.getElementById('saveToFileButton');
         const loadFromFileButton = document.getElementById('loadFromFileButton');
 
+        // Load config first
+        async function getGitHubToken() {
+            try {
+                const response = await fetch(CONFIG_PATH);
+                const config = await response.json();
+                return config.githubToken;
+            } catch (error) {
+                console.error('Failed to load configuration');
+                return null;
+            }
+        }
+
         // Save data to GitHub
         saveToFileButton.addEventListener('click', async () => {
+            const token = await getGitHubToken();
+            if (!token) {
+                alert('GitHub token not configured');
+                return;
+            }
             try {
                 const records = JSON.parse(localStorage.getItem('workRecords')) || [];
                 const fileContent = btoa(JSON.stringify(records, null, 2)); // Base64 encode the JSON data
 
                 // Get the current file SHA
                 const response = await fetch(`${GITHUB_API_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                    headers: { Authorization: `token ${GITHUB_TOKEN}` }
+                    headers: { Authorization: `token ${token}` }
                 });
 
                 const fileData = await response.json();
@@ -143,7 +161,7 @@
                 const updateResponse = await fetch(`${GITHUB_API_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                     method: 'PUT',
                     headers: {
-                        Authorization: `token ${GITHUB_TOKEN}`,
+                        Authorization: `token ${token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
@@ -165,9 +183,14 @@
 
         // Load data from GitHub
         loadFromFileButton.addEventListener('click', async () => {
+            const token = await getGitHubToken();
+            if (!token) {
+                alert('GitHub token not configured');
+                return;
+            }
             try {
                 const response = await fetch(`${GITHUB_API_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                    headers: { Authorization: `token ${GITHUB_TOKEN}` }
+                    headers: { Authorization: `token ${token}` }
                 });
 
                 if (response.ok) {
