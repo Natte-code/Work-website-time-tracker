@@ -20,11 +20,21 @@
         <a href="./track.html"><button>Start Tracking</button></a>
         <a href="./records.html"><button>View Records</button></a>
         <a href="./stats.html"><button>View Statistics</button></a>
+        <button id="darkModeToggle">Toggle Dark Mode</button>
     </div>
     <section id="contact">
         <h2>Contact</h2>
         <p>If you have any questions or feedback, feel free to reach out:</p>
         <p>Email: <a href="mailto:engstrom.nathaniel@gmail.com">engstrom.nathaniel@gmail.com</a></p>
     </section>
+    <script>
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            document.querySelectorAll('*').forEach(el => el.classList.toggle('dark-mode'));
+        });
+
+        // Removed script for fetching motivational quotes
+    </script>
 </body>
 </html>

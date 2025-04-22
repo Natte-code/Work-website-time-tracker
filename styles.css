@@ -76,6 +76,52 @@ td {
     font-size: 14px;
 }
 
+/* Dark mode styles */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+h1.dark-mode {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+nav.dark-mode {
+    background-color: #1e1e1e;
+}
+
+nav.dark-mode a {
+    color: #e0e0e0;
+}
+
+nav.dark-mode a:hover {
+    background-color: #333333;
+}
+
+button.dark-mode {
+    background-color: #333333;
+    color: #e0e0e0;
+}
+
+button.dark-mode:hover {
+    background-color: #444444;
+}
+
+table.dark-mode {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+th.dark-mode {
+    background-color: #333333;
+}
+
+td.dark-mode {
+    border-color: #444444;
+}
+
+/* Improved table responsiveness */
 @media (max-width: 600px) {
     nav a {
         font-size: 14px;
@@ -89,6 +135,9 @@ td {
 
     table {
         font-size: 12px;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
     }
 
     th, td {

@@ -20,15 +20,18 @@
         <button type="button" id="endButton" disabled>End Work</button>
     </form>
     <p id="status">Status: Not working</p>
+    <p id="timer">Elapsed Time: 00:00:00</p>
 
     <script>
         let startTime = null;
+        let timerInterval;
 
         document.getElementById('startButton').addEventListener('click', () => {
             startTime = new Date();
             document.getElementById('status').textContent = `Status: Working since ${startTime.toLocaleTimeString()}`;
             document.getElementById('startButton').disabled = true;
             document.getElementById('endButton').disabled = false;
+            startTimer();
         });
 
         document.getElementById('endButton').addEventListener('click', () => {
@@ -56,9 +59,26 @@
             document.getElementById('startButton').disabled = false;
             document.getElementById('endButton').disabled = true;
             document.getElementById('notes').value = '';
+            stopTimer();
 
             alert(`Work session recorded: ${duration} hours`);
         });
+
+        function startTimer() {
+            const startTime = new Date();
+            timerInterval = setInterval(() => {
+                const elapsedTime = new Date(new Date() - startTime);
+                const hours = String(elapsedTime.getUTCHours()).padStart(2, '0');
+                const minutes = String(elapsedTime.getUTCMinutes()).padStart(2, '0');
+                const seconds = String(elapsedTime.getUTCSeconds()).padStart(2, '0');
+                document.getElementById('timer').textContent = `Elapsed Time: ${hours}:${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            document.getElementById('timer').textContent = 'Elapsed Time: 00:00:00';
+        }
     </script>
 </body>
 </html>

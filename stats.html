@@ -18,7 +18,8 @@
         <p><strong>Average Hours per Session:</strong> <span id="averageHours">0</span> hours</p>
         <p><strong>Total Sessions:</strong> <span id="totalSessions">0</span></p>
     </div>
-
+    <canvas id="workHoursChart" width="400" height="400"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const records = JSON.parse(localStorage.getItem('workRecords')) || [];
         const totalSessions = records.length;
@@ -28,6 +29,32 @@
         document.getElementById('totalHours').textContent = totalHours.toFixed(2);
         document.getElementById('averageHours').textContent = averageHours;
         document.getElementById('totalSessions').textContent = totalSessions;
+
+        const ctx = document.getElementById('workHoursChart').getContext('2d');
+        const sessionLabels = records.map((_, index) => `Session ${index + 1}`);
+        const sessionDurations = records.map(record => parseFloat(record.duration));
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: sessionLabels,
+                datasets: [{
+                    label: 'Work Hours',
+                    data: sessionDurations,
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#FF9F40', '#9966FF'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>
