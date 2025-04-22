@@ -4,8 +4,10 @@
     <title>Work Time Tracker</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
+    <script src="./theme.js"></script>
 </head>
 <body>
+    <button class="theme-toggle" id="themeToggle">🌓</button>
     <h1>Welcome to Work Time Tracker</h1>
     <nav>
         <a href="./home.html">Home</a>
@@ -28,13 +30,10 @@
         <p>Email: <a href="mailto:engstrom.nathaniel@gmail.com">engstrom.nathaniel@gmail.com</a></p>
     </section>
     <script>
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        darkModeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            document.querySelectorAll('*').forEach(el => el.classList.toggle('dark-mode'));
-        });
-
-        // Removed script for fetching motivational quotes
+        // Remove any existing dark mode toggle code and leave only the necessary functionality
+        window.onload = function() {
+            // ...existing code...
+        };
     </script>
 </body>
 </html>

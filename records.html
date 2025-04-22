@@ -4,17 +4,7 @@
     <title>View Records</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./styles.css">
-    <script>
-        // Check for saved theme preference, otherwise use system preference
-        const getPreferredTheme = () => {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) return savedTheme;
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        };
-
-        // Apply theme immediately to prevent flash
-        document.documentElement.setAttribute('data-theme', getPreferredTheme());
-    </script>
+    <script src="./theme.js"></script>
 </head>
 <body>
     <button class="theme-toggle" id="themeToggle">🌓</button>
@@ -49,18 +39,6 @@
     </table>
 
     <script>
-        // Add this at the start of your existing script
-        const themeToggle = document.getElementById('themeToggle');
-        
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        }
-
-        themeToggle.addEventListener('click', toggleTheme);
-
         const records = JSON.parse(localStorage.getItem('workRecords')) || [];
         const tableBody = document.getElementById('recordsTableBody');
         const clearDataButton = document.getElementById('clearDataButton');
