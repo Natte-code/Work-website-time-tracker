@@ -4,8 +4,20 @@
     <title>View Records</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./styles.css">
+    <script>
+        // Check for saved theme preference, otherwise use system preference
+        const getPreferredTheme = () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) return savedTheme;
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        };
+
+        // Apply theme immediately to prevent flash
+        document.documentElement.setAttribute('data-theme', getPreferredTheme());
+    </script>
 </head>
 <body>
+    <button class="theme-toggle" id="themeToggle">🌓</button>
     <h1>Work Records</h1>
     <nav>
         <a href="./home.html">Home</a>
@@ -37,6 +49,18 @@
     </table>
 
     <script>
+        // Add this at the start of your existing script
+        const themeToggle = document.getElementById('themeToggle');
+        
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        themeToggle.addEventListener('click', toggleTheme);
+
         const records = JSON.parse(localStorage.getItem('workRecords')) || [];
         const tableBody = document.getElementById('recordsTableBody');
         const clearDataButton = document.getElementById('clearDataButton');
@@ -130,10 +154,21 @@
         async function getGitHubToken() {
             try {
                 const response = await fetch(CONFIG_PATH);
+                if (!response.ok) {
+                    throw new Error('Config file not found');
+                }
                 const config = await response.json();
+                if (!config.githubToken || config.githubToken === 'YOUR_GITHUB_TOKEN') {
+                    alert('Please configure your GitHub token in config.json:\n\n' +
+                          '1. Go to GitHub.com -> Settings -> Developer settings\n' +
+                          '2. Select Personal access tokens -> Tokens (classic)\n' +
+                          '3. Generate new token with "repo" scope\n' +
+                          '4. Copy token and paste it in config.json');
+                    return null;
+                }
                 return config.githubToken;
             } catch (error) {
-                console.error('Failed to load configuration');
+                alert('Config file not found. Please create config.json with your GitHub token.');
                 return null;
             }
         }
